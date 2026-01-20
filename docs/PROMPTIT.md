@@ -852,4 +852,78 @@ Implementation completed successfully:
 All 36 tests pass (18 unit + 18 integration).
 ```
 
+## 6. Repository Pattern Refactor with Dependency Injection
+
+### Oma prompti Cursorille (Opus 4.5 Thinking Plan Mode)
+
+```
+Next task:
+
+Refactor BookingStore to use repository pattern with dependency injection.
+
+Requirements:
+
+- Define BookingRepository interface in types
+- Rename BookingStore → InMemoryBookingRepository or similar (implements interface)
+- Create factory function createBookingRepository() that returns new instance
+- Refactor bookingService to receive repository via factory function createBookingService(repo)
+- Keep existing exports for backward compatibility
+
+--
+
+- Tests should and can use fresh repository instances (no shared state)
+- Easy to swap implementation later (e.g., database)
+
+Update tests to use fresh repository per test where beneficial.
+
+Update this prompt to @template-id/docs/PROMPTIT.md and add your response there as well
+```
+
+### Cursor & Opus 4.5 Vastaus
+
+Plan moden luoma suunnitelma löytyy tiedostosta: [04_repository_pattern_refactor_c8b40db4.plan.md](../cursor_plans/04_repository_pattern_refactor_c8b40db4.plan.md)
+
+```
+Implementation completed successfully:
+
+1. Added interfaces to src/types/index.ts:
+   - BookingRepository interface (create, findById, findByRoom, delete, getAll, clear)
+   - BookingService interface (createBooking, getBookingsByRoom, cancelBooking, getBookingById)
+
+2. Refactored src/storage/bookingStore.ts:
+   - Renamed BookingStore class to InMemoryBookingRepository
+   - Implements BookingRepository interface
+   - Added createBookingRepository() factory function
+   - Kept backward-compatible bookingStore singleton export
+
+3. Refactored src/services/bookingService.ts:
+   - Created createBookingService(repository) factory function
+   - Moved checkForOverlap inside factory closure (uses injected repository)
+   - Kept backward-compatible bookingService singleton export
+
+4. Refactored src/routes/bookingRoutes.ts:
+   - Created createBookingRoutes(service) factory function
+   - Kept backward-compatible bookingRoutes singleton export
+
+5. Updated src/app.ts:
+   - Added AppDependencies interface
+   - createApp() now accepts optional { bookingService } for DI
+   - Maintains backward compatibility (works without arguments)
+
+6. Updated tests/booking.test.ts:
+   - Repository tests use fresh createBookingRepository() per test
+   - Service tests use fresh createBookingService(repository) per test
+   - No shared state between tests
+
+7. Updated tests/api.test.ts:
+   - Added comment showing how to use full DI if needed
+   - Continues using singleton with clear() for simplicity
+
+Benefits:
+- Tests now have complete isolation (no shared state)
+- Easy to swap InMemoryBookingRepository for DatabaseRepository later
+- Full backward compatibility maintained
+- All 36 tests pass
+```
+
 

@@ -1,9 +1,10 @@
-import { Booking } from '../types/index.js'
+import { Booking, BookingRepository } from '../types/index.js'
 
 /**
- * In-memory storage for bookings using a Map for O(1) lookup by ID
+ * In-memory implementation of BookingRepository
+ * Uses a Map for O(1) lookup by ID
  */
-class BookingStore {
+export class InMemoryBookingRepository implements BookingRepository {
   private bookings: Map<string, Booking> = new Map()
 
   /**
@@ -61,5 +62,13 @@ class BookingStore {
   }
 }
 
-// Export a singleton instance
-export const bookingStore = new BookingStore()
+/**
+ * Factory function for creating new repository instances
+ * Useful for testing with isolated state
+ */
+export function createBookingRepository(): BookingRepository {
+  return new InMemoryBookingRepository()
+}
+
+// Backward-compatible singleton export
+export const bookingStore = createBookingRepository()

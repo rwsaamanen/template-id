@@ -4,6 +4,14 @@ import request from 'supertest'
 import { createApp } from '../src/app.js'
 import { bookingStore } from '../src/storage/bookingStore.js'
 
+/**
+ * Integration tests use the default singleton app with bookingStore.clear()
+ * For full isolation, you could create fresh instances per test:
+ *
+ *   const repo = createBookingRepository()
+ *   const service = createBookingService(repo)
+ *   const app = createApp({ bookingService: service })
+ */
 const app = createApp()
 
 // Helper functions for cleaner test code

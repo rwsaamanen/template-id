@@ -10,6 +10,29 @@ export interface Booking {
 }
 
 /**
+ * Repository interface for booking storage
+ * Allows swapping implementations (in-memory, database, etc.)
+ */
+export interface BookingRepository {
+  create(booking: Booking): Booking
+  findById(id: string): Booking | undefined
+  findByRoom(roomId: string): Booking[]
+  delete(id: string): boolean
+  getAll(): Booking[]
+  clear(): void
+}
+
+/**
+ * Service interface for booking operations
+ */
+export interface BookingService {
+  createBooking(roomId: string, body: unknown): Booking
+  getBookingsByRoom(roomId: string): Booking[]
+  cancelBooking(bookingId: string): void
+  getBookingById(bookingId: string): Booking | undefined
+}
+
+/**
  * Standardized API error response
  */
 export interface ApiError {
