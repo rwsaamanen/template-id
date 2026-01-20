@@ -19,7 +19,7 @@ export function createApp(deps: AppDependencies = {}): Application {
   const app = express()
 
   // Middleware
-  app.use(express.json())
+  app.use(express.json({ limit: '100kb' }))
 
   // Health check endpoint
   app.get('/health', (_req, res) => {
