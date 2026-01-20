@@ -761,4 +761,95 @@ Implementation completed successfully:
 All tests pass and linter shows only warnings (console.log statements).
 ```
 
+## 5. Integration Tests with Supertest
+
+### Oma prompti Cursorille (Opus 4.5 Thinking Plan Mode)
+
+```
+Next task:
+
+Implement integration tests for HTTP endpoints using supertest.
+
+New file: 
+tests/api.test.ts
+
+Patterns:
+
+Helper functions: 
+
+Create some helpers to reduce boilerplate: testPost(url, body), testGet(url), testDelete(url).
+
+Status codes: Verify correct status codes (200, 201, 400, 404, 409).
+
+Response Structure: Validate the response body format:
+
+Success: { data, count }
+Error: { error: { code, message } }
+
+Data Reset: Use beforeEach to reset the data state between tests.
+
+Possible test scenarios:
+
+Successful booking (201): Valid data creates a resource.
+Validation error (400): Missing fields or invalid time format.
+Overlap conflict (409): Trying to book an already reserved slot.
+Not Found (404): Accessing non-existent resources.
+Fetch by room (200): Verify retrieving bookings (both empty list and populated list).
+Cancellation (204/200): Successfully deleting a booking.
+
+Installation: npm install -D supertest @types/supertest
+
+Additional notes:
+
+Update this prompt to @template-id/docs/PROMPTIT.md  and add you response there as well
+```
+
+### Cursor & Opus 4.5 Vastaus
+
+Plan moden luoma suunnitelma löytyy tiedostosta: [03_integration_tests_with_supertest_03fdf398.plan.md](../cursor_plans/03_integration_tests_with_supertest_03fdf398.plan.md)
+
+```
+Implementation completed successfully:
+
+1. Installed supertest and @types/supertest as dev dependencies
+
+2. Created tests/api.test.ts with:
+   - Helper functions: testPost(), testGet(), testDelete()
+   - beforeEach to reset bookingStore between tests
+   - 18 integration tests covering all endpoints
+
+3. Test scenarios covered:
+   - POST /rooms/:roomId/bookings (201, 400, 409)
+     - Successful booking creation
+     - Missing startTime/endTime
+     - Invalid date format
+     - Past booking rejection
+     - startTime >= endTime rejection
+     - Overlapping booking conflict
+     - Adjacent bookings allowed
+     - Same time slot in different rooms
+   
+   - GET /rooms/:roomId/bookings (200)
+     - Empty room returns empty list
+     - Returns all bookings for room
+     - Only returns bookings for specified room
+     - Returns bookings sorted by start time
+   
+   - DELETE /bookings/:bookingId (200, 404)
+     - Successfully cancels existing booking
+     - Returns 404 for non-existent booking
+   
+   - GET /health (200)
+     - Returns health status
+   
+   - Unknown routes (404)
+     - Returns 404 with NOT_FOUND code
+
+4. Response structure validation:
+   - Success: { data, count } or { data }
+   - Error: { error: { code, message } }
+
+All 36 tests pass (18 unit + 18 integration).
+```
+
 
