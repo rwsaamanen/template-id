@@ -1064,4 +1064,64 @@ Implementation completed successfully:
    - 45 total tests
 ```
 
+## 9. Add Duration Validation for Bookings
+
+### Oma prompti Cursorille (Opus 4.5 Thinking Plan Mode)
+
+```
+Next task:
+
+Add minimum and maximum duration validation for bookings.
+
+Goal:
+- Prevent unrealistic bookings (1ms or 100 years)
+- Add business rule constants for min/max duration
+- Validate in service layer (where clock is available)
+
+Constraints ( something like this ):
+- Minimum duration: 15 minutes
+- Maximum duration: 8 hours
+
+Implementation:
+- Add constants to service or separate config
+- Validate after startTime/endTime parsing
+- Throw AppError with VALIDATION_ERROR if outside limits
+- Add tests for edge cases (exactly min, exactly max, below min, above max)
+
+Update this prompt to @template-id/docs/PROMPTIT.md and add your response there as well
+```
+
+### Cursor & Opus 4.5 Vastaus
+
+Plan moden luoma suunnitelma löytyy tiedostosta: [07_add_duration_validation_2ad4d634.plan.md](../cursor_plans/07_add_duration_validation_2ad4d634.plan.md)
+
+```
+Implementation completed successfully:
+
+1. Added BOOKING_DURATION constants to src/services/bookingService.ts:
+   - MIN_MINUTES: 15
+   - MAX_HOURS: 8
+   - MIN_MS: 900,000 (15 minutes in milliseconds)
+   - MAX_MS: 28,800,000 (8 hours in milliseconds)
+
+2. Added validateDuration function:
+   - Calculates duration in milliseconds
+   - Throws AppError if below minimum (15 minutes)
+   - Throws AppError if above maximum (8 hours)
+   - Called after parsing startTime/endTime, before other validations
+
+3. Added duration validation tests:
+   - Exactly minimum (15 min) → allowed
+   - Exactly maximum (8 hours) → allowed
+   - Below minimum (14 min) → rejected
+   - Above maximum (8h 1min) → rejected
+   - Very short (1ms) → rejected
+   - Very long (24 hours) → rejected
+
+4. All tests pass:
+   - 33 unit tests
+   - 18 integration tests
+   - 51 total tests
+```
+
 

@@ -17,6 +17,16 @@ import { Clock, realClock } from '../utils/clock.js'
 import { decode } from '../utils/validation.js'
 
 /**
+ * Booking duration constraints
+ */
+export const BOOKING_DURATION = {
+  MIN_MINUTES: 15,
+  MAX_HOURS: 8,
+  MIN_MS: 15 * 60 * 1000, // 15 minutes in milliseconds
+  MAX_MS: 8 * 60 * 60 * 1000, // 8 hours in milliseconds
+} as const
+
+/**
  * Factory function for creating booking service instances
  * Allows dependency injection of the repository and clock for testing
  */
@@ -24,6 +34,30 @@ export function createBookingService(
   repository: BookingRepository,
   clock: Clock = realClock
 ): BookingService {
+  /**
+   * Validate that booking duration is within allowed limits.
+   * @throws AppError with VALIDATION_ERROR if duration is too short or too long
+   */
+  function validateDuration(startTime: Date, endTime: Date): void {
+    const durationMs = endTime.getTime() - startTime.getTime()
+
+    if (durationMs < BOOKING_DURATION.MIN_MS) {
+      throw new AppError(
+        400,
+        ErrorCodes.VALIDATION_ERROR,
+        `Booking duration must be at least ${BOOKING_DURATION.MIN_MINUTES} minutes`
+      )
+    }
+
+    if (durationMs > BOOKING_DURATION.MAX_MS) {
+      throw new AppError(
+        400,
+        ErrorCodes.VALIDATION_ERROR,
+        `Booking duration cannot exceed ${BOOKING_DURATION.MAX_HOURS} hours`
+      )
+    }
+  }
+
   /**
    * Check if a new booking would overlap with existing bookings for the same room.
    *
@@ -76,6 +110,9 @@ export function createBookingService(
 
       const startTime = new Date(validated.startTime)
       const endTime = new Date(validated.endTime)
+
+      // Validate booking duration
+      validateDuration(startTime, endTime)
 
       // Check if booking is in the past (using injected clock)
       if (startTime <= clock.now()) {

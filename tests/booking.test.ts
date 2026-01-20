@@ -408,6 +408,62 @@ describe('Booking Service', () => {
     })
   })
 
+  describe('Duration Validation', () => {
+    it('should allow booking with exactly minimum duration (15 minutes)', () => {
+      const booking = service.createBooking('room-a', {
+        startTime: '2099-01-21T10:00:00Z',
+        endTime: '2099-01-21T10:15:00Z',
+      })
+
+      expect(booking.id).toBeDefined()
+    })
+
+    it('should allow booking with exactly maximum duration (8 hours)', () => {
+      const booking = service.createBooking('room-a', {
+        startTime: '2099-01-21T10:00:00Z',
+        endTime: '2099-01-21T18:00:00Z',
+      })
+
+      expect(booking.id).toBeDefined()
+    })
+
+    it('should reject booking below minimum duration (14 minutes)', () => {
+      expect(() =>
+        service.createBooking('room-a', {
+          startTime: '2099-01-21T10:00:00Z',
+          endTime: '2099-01-21T10:14:00Z',
+        })
+      ).toThrow('at least 15 minutes')
+    })
+
+    it('should reject booking above maximum duration (8h 1min)', () => {
+      expect(() =>
+        service.createBooking('room-a', {
+          startTime: '2099-01-21T10:00:00Z',
+          endTime: '2099-01-21T18:01:00Z',
+        })
+      ).toThrow('cannot exceed 8 hours')
+    })
+
+    it('should reject very short booking (1 millisecond)', () => {
+      expect(() =>
+        service.createBooking('room-a', {
+          startTime: '2099-01-21T10:00:00.000Z',
+          endTime: '2099-01-21T10:00:00.001Z',
+        })
+      ).toThrow('at least 15 minutes')
+    })
+
+    it('should reject very long booking (24 hours)', () => {
+      expect(() =>
+        service.createBooking('room-a', {
+          startTime: '2099-01-21T10:00:00Z',
+          endTime: '2099-01-22T10:00:00Z',
+        })
+      ).toThrow('cannot exceed 8 hours')
+    })
+  })
+
   describe('Booking Cancellation', () => {
     it('should throw 404 when cancelling non-existent booking', () => {
       expect(() => service.cancelBooking('non-existent')).toThrow(AppError)
