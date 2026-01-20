@@ -1,3 +1,4 @@
+import { StatusCodes } from 'http-status-codes'
 import { v4 as uuidv4 } from 'uuid'
 
 import {
@@ -43,7 +44,7 @@ export function createBookingService(
 
     if (durationMs < BOOKING_DURATION.MIN_MS) {
       throw new AppError(
-        400,
+        StatusCodes.BAD_REQUEST,
         ErrorCodes.VALIDATION_ERROR,
         `Booking duration must be at least ${BOOKING_DURATION.MIN_MINUTES} minutes`
       )
@@ -51,7 +52,7 @@ export function createBookingService(
 
     if (durationMs > BOOKING_DURATION.MAX_MS) {
       throw new AppError(
-        400,
+        StatusCodes.BAD_REQUEST,
         ErrorCodes.VALIDATION_ERROR,
         `Booking duration cannot exceed ${BOOKING_DURATION.MAX_HOURS} hours`
       )
@@ -86,7 +87,7 @@ export function createBookingService(
 
       if (overlaps) {
         throw new AppError(
-          409,
+          StatusCodes.CONFLICT,
           ErrorCodes.BOOKING_OVERLAP,
           `The requested time slot overlaps with an existing booking (${existing.startTime} - ${existing.endTime})`
         )
@@ -117,7 +118,7 @@ export function createBookingService(
       // Check if booking is in the past (using injected clock)
       if (startTime <= clock.now()) {
         throw new AppError(
-          400,
+          StatusCodes.BAD_REQUEST,
           ErrorCodes.VALIDATION_ERROR,
           'Cannot create bookings in the past'
         )
@@ -156,7 +157,7 @@ export function createBookingService(
       const booking = repository.findById(bookingId)
       if (!booking) {
         throw new AppError(
-          404,
+          StatusCodes.NOT_FOUND,
           ErrorCodes.BOOKING_NOT_FOUND,
           `Booking with id '${bookingId}' not found`
         )

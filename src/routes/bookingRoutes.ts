@@ -1,4 +1,5 @@
 import { Router, Request, Response, NextFunction } from 'express'
+import { StatusCodes } from 'http-status-codes'
 
 import { bookingService } from '../services/bookingService.js'
 import { BookingService } from '../types/index.js'
@@ -21,7 +22,7 @@ export function createBookingRoutes(service: BookingService): Router {
         const { roomId } = req.params
         const booking = service.createBooking(roomId, req.body)
 
-        res.status(201).json({
+        res.status(StatusCodes.CREATED).json({
           data: booking,
         })
       } catch (error) {
@@ -41,7 +42,7 @@ export function createBookingRoutes(service: BookingService): Router {
         const { roomId } = req.params
         const bookings = service.getBookingsByRoom(roomId)
 
-        res.status(200).json({
+        res.status(StatusCodes.OK).json({
           data: bookings,
           count: bookings.length,
         })
@@ -62,7 +63,7 @@ export function createBookingRoutes(service: BookingService): Router {
         const { bookingId } = req.params
         service.cancelBooking(bookingId)
 
-        res.status(200).json({
+        res.status(StatusCodes.OK).json({
           message: 'Booking cancelled successfully',
         })
       } catch (error) {

@@ -1,4 +1,5 @@
 import { Request, Response, NextFunction } from 'express'
+import { StatusCodes } from 'http-status-codes'
 
 import { AppError, ErrorCodes, ApiError } from '../types/index.js'
 
@@ -40,7 +41,7 @@ export function errorHandler(
         message: 'Invalid JSON in request body',
       },
     }
-    res.status(400).json(response)
+    res.status(StatusCodes.BAD_REQUEST).json(response)
     return
   }
 
@@ -51,14 +52,14 @@ export function errorHandler(
       message: 'An unexpected error occurred',
     },
   }
-  res.status(500).json(response)
+  res.status(StatusCodes.INTERNAL_SERVER_ERROR).json(response)
 }
 
 /**
  * 404 handler for undefined routes
  */
 export function notFoundHandler(req: Request, res: Response): void {
-  res.status(404).json({
+  res.status(StatusCodes.NOT_FOUND).json({
     error: {
       code: ErrorCodes.NOT_FOUND,
       message: `Route ${req.method} ${req.path} not found`,

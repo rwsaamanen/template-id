@@ -1,4 +1,5 @@
 import express, { Application } from 'express'
+import { StatusCodes } from 'http-status-codes'
 
 import { errorHandler, notFoundHandler } from './middleware/errorHandler.js'
 import { bookingRoutes, createBookingRoutes } from './routes/bookingRoutes.js'
@@ -23,7 +24,9 @@ export function createApp(deps: AppDependencies = {}): Application {
 
   // Health check endpoint
   app.get('/health', (_req, res) => {
-    res.status(200).json({ status: 'ok', timestamp: new Date().toISOString() })
+    res
+      .status(StatusCodes.OK)
+      .json({ status: 'ok', timestamp: new Date().toISOString() })
   })
 
   // API routes - use injected service or default singleton
