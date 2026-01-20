@@ -1,5 +1,6 @@
-import { Request, Response, NextFunction } from 'express';
-import { AppError, ErrorCodes, ApiError } from '../types/index.js';
+import { Request, Response, NextFunction } from 'express'
+
+import { AppError, ErrorCodes, ApiError } from '../types/index.js'
 
 /**
  * Centralized error handling middleware
@@ -9,14 +10,14 @@ export function errorHandler(
   err: Error,
   req: Request,
   res: Response,
-  next: NextFunction
+  _next: NextFunction
 ): void {
   // Log error for debugging (in production, use a proper logger)
   console.error(`[ERROR] ${err.message}`, {
     path: req.path,
     method: req.method,
     stack: err.stack,
-  });
+  })
 
   // Handle known application errors
   if (err instanceof AppError) {
@@ -25,9 +26,9 @@ export function errorHandler(
         code: err.code,
         message: err.message,
       },
-    };
-    res.status(err.statusCode).json(response);
-    return;
+    }
+    res.status(err.statusCode).json(response)
+    return
   }
 
   // Handle JSON parse errors
@@ -37,9 +38,9 @@ export function errorHandler(
         code: ErrorCodes.VALIDATION_ERROR,
         message: 'Invalid JSON in request body',
       },
-    };
-    res.status(400).json(response);
-    return;
+    }
+    res.status(400).json(response)
+    return
   }
 
   // Handle unknown errors
@@ -48,8 +49,8 @@ export function errorHandler(
       code: ErrorCodes.INTERNAL_ERROR,
       message: 'An unexpected error occurred',
     },
-  };
-  res.status(500).json(response);
+  }
+  res.status(500).json(response)
 }
 
 /**
@@ -61,5 +62,5 @@ export function notFoundHandler(req: Request, res: Response): void {
       code: 'NOT_FOUND',
       message: `Route ${req.method} ${req.path} not found`,
     },
-  });
+  })
 }

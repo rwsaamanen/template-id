@@ -1,11 +1,11 @@
-import { CreateBookingRequest, AppError, ErrorCodes } from '../types/index.js';
+import { AppError, ErrorCodes } from '../types/index.js'
 
 /**
  * Result of validation containing parsed dates
  */
 export interface ValidatedBooking {
-  startTime: Date;
-  endTime: Date;
+  startTime: Date
+  endTime: Date
 }
 
 /**
@@ -22,10 +22,10 @@ export function validateCreateBooking(
       400,
       ErrorCodes.VALIDATION_ERROR,
       'Request body must be a JSON object'
-    );
+    )
   }
 
-  const request = body as Record<string, unknown>;
+  const request = body as Record<string, unknown>
 
   // Check required fields
   if (!request.startTime) {
@@ -33,15 +33,11 @@ export function validateCreateBooking(
       400,
       ErrorCodes.VALIDATION_ERROR,
       'startTime is required'
-    );
+    )
   }
 
   if (!request.endTime) {
-    throw new AppError(
-      400,
-      ErrorCodes.VALIDATION_ERROR,
-      'endTime is required'
-    );
+    throw new AppError(400, ErrorCodes.VALIDATION_ERROR, 'endTime is required')
   }
 
   // Check field types
@@ -50,7 +46,7 @@ export function validateCreateBooking(
       400,
       ErrorCodes.VALIDATION_ERROR,
       'startTime must be a string in ISO-8601 format'
-    );
+    )
   }
 
   if (typeof request.endTime !== 'string') {
@@ -58,12 +54,12 @@ export function validateCreateBooking(
       400,
       ErrorCodes.VALIDATION_ERROR,
       'endTime must be a string in ISO-8601 format'
-    );
+    )
   }
 
   // Parse and validate dates
-  const startTime = parseISODate(request.startTime, 'startTime');
-  const endTime = parseISODate(request.endTime, 'endTime');
+  const startTime = parseISODate(request.startTime, 'startTime')
+  const endTime = parseISODate(request.endTime, 'endTime')
 
   // Validate start is before end
   if (startTime.getTime() >= endTime.getTime()) {
@@ -71,7 +67,7 @@ export function validateCreateBooking(
       400,
       ErrorCodes.INVALID_TIME_RANGE,
       'startTime must be before endTime'
-    );
+    )
   }
 
   // Validate booking is not in the past
@@ -80,27 +76,27 @@ export function validateCreateBooking(
       400,
       ErrorCodes.PAST_BOOKING,
       'Cannot create bookings in the past'
-    );
+    )
   }
 
-  return { startTime, endTime };
+  return { startTime, endTime }
 }
 
 /**
  * Parse and validate an ISO-8601 date string
  */
 function parseISODate(value: string, fieldName: string): Date {
-  const date = new Date(value);
+  const date = new Date(value)
 
   if (isNaN(date.getTime())) {
     throw new AppError(
       400,
       ErrorCodes.VALIDATION_ERROR,
       `${fieldName} must be a valid ISO-8601 date`
-    );
+    )
   }
 
-  return date;
+  return date
 }
 
 /**
@@ -108,11 +104,7 @@ function parseISODate(value: string, fieldName: string): Date {
  */
 export function validateRoomId(roomId: string): void {
   if (!roomId || roomId.trim() === '') {
-    throw new AppError(
-      400,
-      ErrorCodes.VALIDATION_ERROR,
-      'roomId is required'
-    );
+    throw new AppError(400, ErrorCodes.VALIDATION_ERROR, 'roomId is required')
   }
 }
 
@@ -125,6 +117,6 @@ export function validateBookingId(bookingId: string): void {
       400,
       ErrorCodes.VALIDATION_ERROR,
       'bookingId is required'
-    );
+    )
   }
 }

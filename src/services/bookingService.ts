@@ -1,12 +1,12 @@
-import { v4 as uuidv4 } from 'uuid';
-import { Booking, AppError, ErrorCodes } from '../types/index.js';
-import { bookingStore } from '../storage/bookingStore.js';
+import { v4 as uuidv4 } from 'uuid'
+
+import { bookingStore } from '../storage/bookingStore.js'
+import { Booking, AppError, ErrorCodes } from '../types/index.js'
 import {
   validateCreateBooking,
   validateRoomId,
   validateBookingId,
-  ValidatedBooking,
-} from '../validators/bookingValidator.js';
+} from '../validators/bookingValidator.js'
 
 /**
  * Service layer for booking operations
@@ -19,11 +19,11 @@ export const bookingService = {
    */
   createBooking(roomId: string, body: unknown): Booking {
     // Validate inputs
-    validateRoomId(roomId);
-    const validated = validateCreateBooking(body);
+    validateRoomId(roomId)
+    const validated = validateCreateBooking(body)
 
     // Check for overlapping bookings
-    checkForOverlap(roomId, validated.startTime, validated.endTime);
+    checkForOverlap(roomId, validated.startTime, validated.endTime)
 
     // Create the booking
     const booking: Booking = {
@@ -32,17 +32,17 @@ export const bookingService = {
       startTime: validated.startTime.toISOString(),
       endTime: validated.endTime.toISOString(),
       createdAt: new Date().toISOString(),
-    };
+    }
 
-    return bookingStore.create(booking);
+    return bookingStore.create(booking)
   },
 
   /**
    * Get all bookings for a room
    */
   getBookingsByRoom(roomId: string): Booking[] {
-    validateRoomId(roomId);
-    return bookingStore.findByRoom(roomId);
+    validateRoomId(roomId)
+    return bookingStore.findByRoom(roomId)
   },
 
   /**
@@ -50,55 +50,51 @@ export const bookingService = {
    * @throws AppError if booking not found
    */
   cancelBooking(bookingId: string): void {
-    validateBookingId(bookingId);
+    validateBookingId(bookingId)
 
-    const booking = bookingStore.findById(bookingId);
+    const booking = bookingStore.findById(bookingId)
     if (!booking) {
       throw new AppError(
         404,
         ErrorCodes.BOOKING_NOT_FOUND,
         `Booking with id '${bookingId}' not found`
-      );
+      )
     }
 
-    bookingStore.delete(bookingId);
+    bookingStore.delete(bookingId)
   },
 
   /**
    * Get a single booking by ID (useful for testing)
    */
   getBookingById(bookingId: string): Booking | undefined {
-    validateBookingId(bookingId);
-    return bookingStore.findById(bookingId);
+    validateBookingId(bookingId)
+    return bookingStore.findById(bookingId)
   },
-};
+}
 
 /**
  * Check if a new booking would overlap with existing bookings for the same room
  * Two time ranges overlap if: newStart < existingEnd AND newEnd > existingStart
  * @throws AppError if overlap is detected
  */
-function checkForOverlap(
-  roomId: string,
-  newStart: Date,
-  newEnd: Date
-): void {
-  const existingBookings = bookingStore.findByRoom(roomId);
+function checkForOverlap(roomId: string, newStart: Date, newEnd: Date): void {
+  const existingBookings = bookingStore.findByRoom(roomId)
 
   for (const existing of existingBookings) {
-    const existingStart = new Date(existing.startTime);
-    const existingEnd = new Date(existing.endTime);
+    const existingStart = new Date(existing.startTime)
+    const existingEnd = new Date(existing.endTime)
 
     const overlaps =
       newStart.getTime() < existingEnd.getTime() &&
-      newEnd.getTime() > existingStart.getTime();
+      newEnd.getTime() > existingStart.getTime()
 
     if (overlaps) {
       throw new AppError(
         409,
         ErrorCodes.BOOKING_OVERLAP,
         `The requested time slot overlaps with an existing booking (${existing.startTime} - ${existing.endTime})`
-      );
+      )
     }
   }
 }
