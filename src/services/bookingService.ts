@@ -1,12 +1,13 @@
 import { v4 as uuidv4 } from 'uuid'
 
+import {
+  createBookingBodySchema,
+  roomIdParamsSchema,
+  bookingIdParamsSchema,
+} from '../schemas/bookingSchemas.js'
 import { bookingStore } from '../storage/bookingStore.js'
 import { Booking, AppError, ErrorCodes } from '../types/index.js'
-import {
-  validateCreateBooking,
-  validateRoomId,
-  validateBookingId,
-} from '../validators/bookingValidator.js'
+import { decode } from '../utils/validation.js'
 
 /**
  * Service layer for booking operations
@@ -18,19 +19,22 @@ export const bookingService = {
    * @throws AppError if validation fails or booking overlaps
    */
   createBooking(roomId: string, body: unknown): Booking {
-    // Validate inputs
-    validateRoomId(roomId)
-    const validated = validateCreateBooking(body)
+    // Validate inputs using Zod
+    decode('roomIdParams', roomIdParamsSchema, { roomId })
+    const validated = decode('createBookingBody', createBookingBodySchema, body)
+
+    const startTime = new Date(validated.startTime)
+    const endTime = new Date(validated.endTime)
 
     // Check for overlapping bookings
-    checkForOverlap(roomId, validated.startTime, validated.endTime)
+    checkForOverlap(roomId, startTime, endTime)
 
     // Create the booking
     const booking: Booking = {
       id: uuidv4(),
       roomId,
-      startTime: validated.startTime.toISOString(),
-      endTime: validated.endTime.toISOString(),
+      startTime: startTime.toISOString(),
+      endTime: endTime.toISOString(),
       createdAt: new Date().toISOString(),
     }
 
@@ -41,7 +45,7 @@ export const bookingService = {
    * Get all bookings for a room
    */
   getBookingsByRoom(roomId: string): Booking[] {
-    validateRoomId(roomId)
+    decode('roomIdParams', roomIdParamsSchema, { roomId })
     return bookingStore.findByRoom(roomId)
   },
 
@@ -50,7 +54,7 @@ export const bookingService = {
    * @throws AppError if booking not found
    */
   cancelBooking(bookingId: string): void {
-    validateBookingId(bookingId)
+    decode('bookingIdParams', bookingIdParamsSchema, { bookingId })
 
     const booking = bookingStore.findById(bookingId)
     if (!booking) {
@@ -68,7 +72,7 @@ export const bookingService = {
    * Get a single booking by ID (useful for testing)
    */
   getBookingById(bookingId: string): Booking | undefined {
-    validateBookingId(bookingId)
+    decode('bookingIdParams', bookingIdParamsSchema, { bookingId })
     return bookingStore.findById(bookingId)
   },
 }

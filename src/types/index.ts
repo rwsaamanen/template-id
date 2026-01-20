@@ -10,19 +10,12 @@ export interface Booking {
 }
 
 /**
- * Request body for creating a new booking
- */
-export interface CreateBookingRequest {
-  startTime: string
-  endTime: string
-}
-
-/**
  * Standardized API error response
  */
 export interface ApiError {
   code: string
   message: string
+  errors?: unknown[] // Optional validation error details
 }
 
 /**
@@ -32,7 +25,8 @@ export class AppError extends Error {
   constructor(
     public readonly statusCode: number,
     public readonly code: string,
-    message: string
+    message: string,
+    public readonly errors?: unknown[] // Optional validation error details
   ) {
     super(message)
     this.name = 'AppError'

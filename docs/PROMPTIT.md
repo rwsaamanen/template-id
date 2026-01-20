@@ -679,4 +679,86 @@ Summary with strengths and weaknesses
 Tiedosto on nyt valmiina: template-id/docs/AUDIT.md
 ```
 
+## 4. Zod Validation Implementation
+
+### Oma prompti Cursorille (Opus 4.5 Thinking Plan Mode)
+
+```
+Next task:
+
+Implement Zod Validation
+
+Implement Zod validation for the template-id project.
+
+Structure something like this:
+
+src/schemas/bookinhSchemas.ts
+src/utils/validation.ts 
+
+Patterns:
+
+Naming Convention: Use specific names for schemas, e.g. createBookingBodySchema, roomIdParamsSchema.
+
+Type Inference: Derive TypeScript types directly from the schemas: type CreateBookingBody = z.infer<typeof createBookingBodySchema>.
+
+Validation Logic: Use safeParse(). If validation fails, throw an AppError.
+
+Helper Function: Create a decode(schemaName, schema, data) helper in utils/validation.ts. It should return the typed data or throw an error.
+
+Custom Validations: Use .refine() for custom logic (e.g., check that startTime < endTime and prevent dates in the past).
+
+Error Handling: Update the AppError class to include an optional errors?: unknown[] property for validation details.
+
+Cleanup: Remove the old validators/bookingValidator.ts and other code that is not used.
+
+Installation: npm install zod ( Version: ^3.25.76 )
+
+Additional notes:
+
+Update this prompt to @template-id/docs/PROMPTIT.md  and add you response there as well
+```
+
+### Cursor & Opus 4.5 Vastaus
+
+Plan moden luoma suunnitelma löytyy tiedostosta: [02_implement_zod_validation_8dd34006.plan.md](../cursor_plans/02_implement_zod_validation_8dd34006.plan.md)
+
+```
+Implementation completed successfully:
+
+1. Installed zod@^3.25.76
+
+2. Created src/schemas/bookingSchemas.ts with:
+   - createBookingBodySchema (with .refine() for time validation)
+   - roomIdParamsSchema
+   - bookingIdParamsSchema
+   - Type inference: CreateBookingBody, RoomIdParams, BookingIdParams
+
+3. Created src/utils/validation.ts with:
+   - decode(schemaName, schema, data) helper function
+   - ValidationErrorDetail interface
+   - Throws AppError with validation details on failure
+
+4. Updated src/types/index.ts:
+   - Added optional errors?: unknown[] to AppError class
+   - Added optional errors field to ApiError interface
+   - Removed unused CreateBookingRequest interface
+
+5. Updated src/middleware/errorHandler.ts:
+   - Now includes err.errors in response when present
+
+6. Updated src/services/bookingService.ts:
+   - Replaced old validators with Zod decode() calls
+   - Uses createBookingBodySchema, roomIdParamsSchema, bookingIdParamsSchema
+
+7. Updated tests/booking.test.ts:
+   - Tests now use decode() and Zod schemas
+   - All 18 tests pass
+
+8. Cleanup:
+   - Deleted src/validators/bookingValidator.ts
+   - Removed src/validators/ directory
+
+All tests pass and linter shows only warnings (console.log statements).
+```
+
 
