@@ -1000,4 +1000,68 @@ Benefits:
 - All 39 tests pass (21 unit + 18 integration)
 ```
 
+## 8. Document Overlap Model and Edge Case Tests
+
+### Oma prompti Cursorille (Opus 4.5 Thinking Plan Mode)
+
+```
+Next task:
+
+Document overlap model and add comprehensive edge case tests.
+
+Goal:
+- Document [start, end) model assumption (start inclusive, end exclusive)
+- Document UTC time convention
+- Add edge case tests covering all overlap scenarios
+
+Documentation (add to README or create docs/TIME_MODEL.md):
+- Overlap model: [start, end) - adjacent bookings allowed
+- Times stored and compared in UTC
+- Frontend responsible for timezone conversion if needed
+
+Edge case tests to add (booking.test.ts):
+- Adjacent bookings: A ends exactly when B starts → allowed
+- Exact same slot → rejected
+- New booking starts 1ms before existing ends → rejected
+- New booking ends 1ms after existing starts → rejected
+
+Add JSDoc comment to checkForOverlap function explaining the model.
+
+Update this prompt to @template-id/docs/PROMPTIT.md and add your response there as well
+```
+
+### Cursor & Opus 4.5 Vastaus
+
+Plan moden luoma suunnitelma löytyy tiedostosta: [06_document_overlap_model_and_edge_cases_a29e288f.plan.md](../cursor_plans/06_document_overlap_model_and_edge_cases_a29e288f.plan.md)
+
+```
+Implementation completed successfully:
+
+1. Created docs/TIME_MODEL.md:
+   - Documented half-open interval model [start, end)
+   - Explained why adjacent bookings are allowed
+   - Visual ASCII diagrams showing allowed vs rejected scenarios
+   - UTC time convention and frontend responsibility
+   - Edge case summary table
+
+2. Updated src/services/bookingService.ts:
+   - Enhanced JSDoc on checkForOverlap function
+   - Documents [start, end) model
+   - Explains overlap formula
+   - References docs/TIME_MODEL.md
+
+3. Added edge case tests to tests/booking.test.ts:
+   - Adjacent bookings (B starts when A ends) → allowed
+   - Adjacent bookings (A starts when B ends) → allowed
+   - Exact same time slot → rejected
+   - New booking starts 1ms before existing ends → rejected
+   - New booking ends 1ms after existing starts → rejected
+   - New booking ends exactly when existing starts → allowed
+
+4. All tests pass:
+   - 27 unit tests
+   - 18 integration tests
+   - 45 total tests
+```
+
 

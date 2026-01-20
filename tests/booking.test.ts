@@ -301,6 +301,111 @@ describe('Booking Service', () => {
       expect(booking1.roomId).toBe('room-a')
       expect(booking2.roomId).toBe('room-b')
     })
+
+    // Edge case tests for [start, end) half-open interval model
+    // See docs/TIME_MODEL.md for detailed documentation
+
+    it('should allow adjacent bookings (B starts exactly when A ends)', () => {
+      // This is the key test for [start, end) model
+      // A: [10:00, 11:00) - owns 10:00, does NOT own 11:00
+      // B: [11:00, 12:00) - owns 11:00
+      const bookingA = service.createBooking('room-a', {
+        startTime: '2099-01-21T10:00:00Z',
+        endTime: '2099-01-21T11:00:00Z',
+      })
+
+      const bookingB = service.createBooking('room-a', {
+        startTime: '2099-01-21T11:00:00Z',
+        endTime: '2099-01-21T12:00:00Z',
+      })
+
+      expect(bookingA.id).toBeDefined()
+      expect(bookingB.id).toBeDefined()
+    })
+
+    it('should allow adjacent bookings (A starts exactly when B ends)', () => {
+      // Same as above but reversed order of creation
+      // B: [11:00, 12:00)
+      // A: [10:00, 11:00)
+      const bookingB = service.createBooking('room-a', {
+        startTime: '2099-01-21T11:00:00Z',
+        endTime: '2099-01-21T12:00:00Z',
+      })
+
+      const bookingA = service.createBooking('room-a', {
+        startTime: '2099-01-21T10:00:00Z',
+        endTime: '2099-01-21T11:00:00Z',
+      })
+
+      expect(bookingA.id).toBeDefined()
+      expect(bookingB.id).toBeDefined()
+    })
+
+    it('should reject exact same time slot', () => {
+      // A: [10:00, 11:00)
+      // B: [10:00, 11:00) - identical
+      service.createBooking('room-a', {
+        startTime: '2099-01-21T10:00:00Z',
+        endTime: '2099-01-21T11:00:00Z',
+      })
+
+      expect(() =>
+        service.createBooking('room-a', {
+          startTime: '2099-01-21T10:00:00Z',
+          endTime: '2099-01-21T11:00:00Z',
+        })
+      ).toThrow('overlaps')
+    })
+
+    it('should reject when new booking starts 1ms before existing ends', () => {
+      // A: [10:00:00.000, 11:00:00.000)
+      // B: [10:59:59.999, 12:00:00.000) - starts 1ms before A ends
+      service.createBooking('room-a', {
+        startTime: '2099-01-21T10:00:00.000Z',
+        endTime: '2099-01-21T11:00:00.000Z',
+      })
+
+      expect(() =>
+        service.createBooking('room-a', {
+          startTime: '2099-01-21T10:59:59.999Z',
+          endTime: '2099-01-21T12:00:00.000Z',
+        })
+      ).toThrow('overlaps')
+    })
+
+    it('should reject when new booking ends 1ms after existing starts', () => {
+      // A: [10:00:00.000, 11:00:00.000)
+      // B: [09:30:00.000, 10:00:00.001) - ends 1ms after A starts
+      // Note: B starts at 09:30 which is after mock clock (09:00)
+      service.createBooking('room-a', {
+        startTime: '2099-01-21T10:00:00.000Z',
+        endTime: '2099-01-21T11:00:00.000Z',
+      })
+
+      expect(() =>
+        service.createBooking('room-a', {
+          startTime: '2099-01-21T09:30:00.000Z',
+          endTime: '2099-01-21T10:00:00.001Z',
+        })
+      ).toThrow('overlaps')
+    })
+
+    it('should allow when new booking ends exactly when existing starts', () => {
+      // A: [10:00, 11:00)
+      // B: [09:30, 10:00) - ends exactly when A starts
+      // Note: B starts at 09:30 which is after mock clock (09:00)
+      service.createBooking('room-a', {
+        startTime: '2099-01-21T10:00:00Z',
+        endTime: '2099-01-21T11:00:00Z',
+      })
+
+      const bookingB = service.createBooking('room-a', {
+        startTime: '2099-01-21T09:30:00Z',
+        endTime: '2099-01-21T10:00:00Z',
+      })
+
+      expect(bookingB.id).toBeDefined()
+    })
   })
 
   describe('Booking Cancellation', () => {

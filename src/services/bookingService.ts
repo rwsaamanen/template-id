@@ -25,9 +25,19 @@ export function createBookingService(
   clock: Clock = realClock
 ): BookingService {
   /**
-   * Check if a new booking would overlap with existing bookings for the same room
-   * Two time ranges overlap if: newStart < existingEnd AND newEnd > existingStart
-   * @throws AppError if overlap is detected
+   * Check if a new booking would overlap with existing bookings for the same room.
+   *
+   * Uses half-open interval model [start, end):
+   * - Start time is inclusive (booking owns this moment)
+   * - End time is exclusive (next booking can start here)
+   *
+   * Overlap occurs when: newStart < existingEnd AND newEnd > existingStart
+   *
+   * This allows adjacent bookings (A ends at 11:00, B starts at 11:00)
+   * but rejects any actual time overlap, even by 1 millisecond.
+   *
+   * @see docs/TIME_MODEL.md for detailed documentation
+   * @throws AppError with BOOKING_OVERLAP if overlap is detected
    */
   function checkForOverlap(roomId: string, newStart: Date, newEnd: Date): void {
     const existingBookings = repository.findByRoom(roomId)
