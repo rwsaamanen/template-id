@@ -1124,4 +1124,63 @@ Implementation completed successfully:
    - 51 total tests
 ```
 
+## 10. Document Concurrency Limitations
+
+### Oma prompti Cursorille (Opus 4.5 Thinking Plan Mode)
+
+```
+Next task:
+
+Document concurrency limitations for in-memory implementation.
+
+Goal:
+- Explain why current implementation is safe (Node.js single-threaded)
+- Document check-then-insert pattern and when it would be a problem
+- Add note about what would change with real database
+
+Add section to TIME_MODEL.md or create docs/CONCURRENCY.md:
+- Current implementation: sync code = atomic in single Node.js process
+- No race condition risk because no await between check and insert
+- With real DB: would need transaction + database constraint (EXCLUDE USING GIST)
+- With clustering: would need distributed lock or rely on DB constraint
+
+Keep it brief - this is documentation, not implementation.
+
+Update this prompt to @template-id/docs/PROMPTIT.md and add your response there as well
+```
+
+### Cursor & Opus 4.5 Vastaus
+
+Plan moden luoma suunnitelma löytyy tiedostosta: [08_document_concurrency_limitations_ffb2209c.plan.md](../cursor_plans/08_document_concurrency_limitations_ffb2209c.plan.md)
+
+```
+Documentation created successfully:
+
+Created docs/CONCURRENCY.md covering:
+
+1. Current Implementation Safety:
+   - Node.js single-threaded execution
+   - Synchronous code is atomic (no await between check and insert)
+   - Event loop only yields at await points
+
+2. Check-Then-Insert Pattern:
+   - Code flow diagram showing atomic operation
+   - Why no race condition occurs in current implementation
+
+3. With Real Database:
+   - Async operations create race window
+   - Race condition diagram showing the problem
+   - Solutions: transactions, database constraints (EXCLUDE USING GIST), optimistic locking
+
+4. With Clustering:
+   - Multiple processes = multiple event loops = race possible
+   - Solutions: database constraint (recommended), distributed locks, single writer
+
+5. Summary Table:
+   - Single process + in-memory: Safe
+   - Single process + real DB: Not safe
+   - Multiple processes: Not safe
+   - Recommendation: Use database-level constraint as primary defense
+```
+
 
