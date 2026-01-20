@@ -14,7 +14,9 @@ const isoDateTimeSchema = z
  * Validates:
  * - startTime and endTime are valid ISO-8601 strings
  * - startTime is before endTime
- * - startTime is not in the past
+ *
+ * Note: Past-booking validation is done in the service layer
+ * where the Clock abstraction can be injected for testing
  */
 export const createBookingBodySchema = z
   .object({
@@ -23,10 +25,6 @@ export const createBookingBodySchema = z
   })
   .refine((data) => new Date(data.startTime) < new Date(data.endTime), {
     message: 'startTime must be before endTime',
-    path: ['startTime'],
-  })
-  .refine((data) => new Date(data.startTime) > new Date(), {
-    message: 'Cannot create bookings in the past',
     path: ['startTime'],
   })
 

@@ -926,4 +926,78 @@ Benefits:
 - All 36 tests pass
 ```
 
+## 7. Clock Abstraction for Deterministic Time Handling
+
+### Oma prompti Cursorille (Opus 4.5 Thinking Plan Mode)
+
+```
+Next task:
+
+Add Clock abstraction for deterministic time handling in tests.
+
+Goal:
+- Create simple Clock interface with now() method
+- Inject clock into bookingService (like repository)
+- Tests can provide mock clock with fixed time
+- Production uses real clock (Date.now)
+
+File: src/utils/clock.ts
+
+interface Clock {
+  now(): Date
+}
+
+const realClock: Clock = { now: () => new Date() }
+
+export { Clock, realClock }
+
+Update createBookingService to accept optional clock parameter (default: realClock).
+Use clock.now() instead of new Date() for createdAt and validation.
+
+Test example:
+const mockClock = { now: () => new Date('2099-01-21T12:00:00Z') }
+const service = createBookingService(repo, mockClock)
+
+Update this prompt to @template-id/docs/PROMPTIT.md and add your response there as well
+```
+
+### Cursor & Opus 4.5 Vastaus
+
+Plan moden luoma suunnitelma löytyy tiedostosta: [05_clock_abstraction_for_tests_0960c2cc.plan.md](../cursor_plans/05_clock_abstraction_for_tests_0960c2cc.plan.md)
+
+```
+Implementation completed successfully:
+
+1. Created src/utils/clock.ts:
+   - Clock interface with now(): Date method
+   - realClock implementation using new Date()
+
+2. Updated src/schemas/bookingSchemas.ts:
+   - Removed past-booking validation (.refine with new Date())
+   - Schema now only validates format and startTime < endTime
+   - Added comment explaining validation moved to service
+
+3. Updated src/services/bookingService.ts:
+   - Added optional clock parameter with default realClock
+   - Added past-booking validation using clock.now()
+   - Use clock.now() for createdAt timestamp
+   - Updated singleton export to use realClock
+
+4. Updated tests/booking.test.ts:
+   - Removed past-booking test from Zod validation section
+   - Added "Clock and Time Handling" test section
+   - Tests use mockClock = { now: () => new Date('2099-01-21T09:00:00Z') }
+   - Tests verify:
+     - createdAt uses injected clock
+     - Past bookings rejected (relative to clock)
+     - Exact current time rejected
+     - Future bookings allowed
+
+Benefits:
+- Deterministic time in tests (no flaky tests due to timing)
+- createdAt timestamps are predictable in tests
+- Past-booking validation is testable with any clock value
+- All 39 tests pass (21 unit + 18 integration)
+```
+
 

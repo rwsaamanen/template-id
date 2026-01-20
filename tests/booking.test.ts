@@ -8,6 +8,7 @@ import {
   BookingRepository,
   BookingService,
 } from '../src/types/index.js'
+import { Clock } from '../src/utils/clock.js'
 import { decode } from '../src/utils/validation.js'
 
 describe('Zod Validation with decode()', () => {
@@ -66,17 +67,6 @@ describe('Zod Validation with decode()', () => {
       const body = {
         startTime: '2099-01-21T12:00:00Z',
         endTime: '2099-01-21T10:00:00Z',
-      }
-
-      expect(() =>
-        decode('createBookingBody', createBookingBodySchema, body)
-      ).toThrow(AppError)
-    })
-
-    it('should reject bookings in the past', () => {
-      const body = {
-        startTime: '2020-01-19T10:00:00Z', // In the past
-        endTime: '2020-01-19T11:00:00Z',
       }
 
       expect(() =>
@@ -172,99 +162,151 @@ describe('Booking Repository', () => {
   })
 })
 
-describe('Booking Service - Overlap Detection', () => {
+describe('Booking Service', () => {
   let repository: BookingRepository
   let service: BookingService
+  let mockClock: Clock
 
   beforeEach(() => {
-    // Fresh repository and service instances for each test - no shared state
+    // Fresh repository and service instances for each test
     repository = createBookingRepository()
-    service = createBookingService(repository)
+    // Mock clock set to a fixed time before the test bookings
+    mockClock = { now: () => new Date('2099-01-21T09:00:00Z') }
+    service = createBookingService(repository, mockClock)
   })
 
-  it('should allow non-overlapping bookings', () => {
-    // First booking: 10:00 - 11:00
-    const booking1 = service.createBooking('room-a', {
-      startTime: '2099-01-21T10:00:00Z',
-      endTime: '2099-01-21T11:00:00Z',
-    })
-
-    // Second booking: 11:00 - 12:00 (starts exactly when first ends)
-    const booking2 = service.createBooking('room-a', {
-      startTime: '2099-01-21T11:00:00Z',
-      endTime: '2099-01-21T12:00:00Z',
-    })
-
-    expect(booking1.id).toBeDefined()
-    expect(booking2.id).toBeDefined()
-    expect(repository.findByRoom('room-a')).toHaveLength(2)
-  })
-
-  it('should reject overlapping bookings (new starts during existing)', () => {
-    // First booking: 10:00 - 12:00
-    service.createBooking('room-a', {
-      startTime: '2099-01-21T10:00:00Z',
-      endTime: '2099-01-21T12:00:00Z',
-    })
-
-    // Second booking: 11:00 - 13:00 (starts during first)
-    expect(() =>
-      service.createBooking('room-a', {
-        startTime: '2099-01-21T11:00:00Z',
-        endTime: '2099-01-21T13:00:00Z',
+  describe('Clock and Time Handling', () => {
+    it('should use injected clock for createdAt timestamp', () => {
+      const booking = service.createBooking('room-a', {
+        startTime: '2099-01-21T10:00:00Z',
+        endTime: '2099-01-21T11:00:00Z',
       })
-    ).toThrow('overlaps')
-  })
 
-  it('should reject overlapping bookings (new contains existing)', () => {
-    // First booking: 11:00 - 12:00
-    service.createBooking('room-a', {
-      startTime: '2099-01-21T11:00:00Z',
-      endTime: '2099-01-21T12:00:00Z',
+      expect(booking.createdAt).toBe('2099-01-21T09:00:00.000Z')
     })
 
-    // Second booking: 10:00 - 13:00 (contains first)
-    expect(() =>
+    it('should reject bookings in the past (relative to clock)', () => {
+      // Mock clock is at 2099-01-21T09:00:00Z
+      // Try to book at 08:00 (before clock time)
+      expect(() =>
+        service.createBooking('room-a', {
+          startTime: '2099-01-21T08:00:00Z',
+          endTime: '2099-01-21T09:00:00Z',
+        })
+      ).toThrow('Cannot create bookings in the past')
+    })
+
+    it('should reject bookings at exact current time', () => {
+      // Mock clock is at 2099-01-21T09:00:00Z
+      // Try to book at exactly 09:00 (same as clock time)
+      expect(() =>
+        service.createBooking('room-a', {
+          startTime: '2099-01-21T09:00:00Z',
+          endTime: '2099-01-21T10:00:00Z',
+        })
+      ).toThrow('Cannot create bookings in the past')
+    })
+
+    it('should allow bookings in the future (relative to clock)', () => {
+      // Mock clock is at 2099-01-21T09:00:00Z
+      // Book at 10:00 (after clock time) - should succeed
+      const booking = service.createBooking('room-a', {
+        startTime: '2099-01-21T10:00:00Z',
+        endTime: '2099-01-21T11:00:00Z',
+      })
+
+      expect(booking.id).toBeDefined()
+      expect(booking.startTime).toBe('2099-01-21T10:00:00.000Z')
+    })
+  })
+
+  describe('Overlap Detection', () => {
+    it('should allow non-overlapping bookings', () => {
+      // First booking: 10:00 - 11:00
+      const booking1 = service.createBooking('room-a', {
+        startTime: '2099-01-21T10:00:00Z',
+        endTime: '2099-01-21T11:00:00Z',
+      })
+
+      // Second booking: 11:00 - 12:00 (starts exactly when first ends)
+      const booking2 = service.createBooking('room-a', {
+        startTime: '2099-01-21T11:00:00Z',
+        endTime: '2099-01-21T12:00:00Z',
+      })
+
+      expect(booking1.id).toBeDefined()
+      expect(booking2.id).toBeDefined()
+      expect(repository.findByRoom('room-a')).toHaveLength(2)
+    })
+
+    it('should reject overlapping bookings (new starts during existing)', () => {
+      // First booking: 10:00 - 12:00
       service.createBooking('room-a', {
         startTime: '2099-01-21T10:00:00Z',
-        endTime: '2099-01-21T13:00:00Z',
+        endTime: '2099-01-21T12:00:00Z',
       })
-    ).toThrow('overlaps')
-  })
 
-  it('should reject overlapping bookings (new inside existing)', () => {
-    // First booking: 10:00 - 14:00
-    service.createBooking('room-a', {
-      startTime: '2099-01-21T10:00:00Z',
-      endTime: '2099-01-21T14:00:00Z',
+      // Second booking: 11:00 - 13:00 (starts during first)
+      expect(() =>
+        service.createBooking('room-a', {
+          startTime: '2099-01-21T11:00:00Z',
+          endTime: '2099-01-21T13:00:00Z',
+        })
+      ).toThrow('overlaps')
     })
 
-    // Second booking: 11:00 - 12:00 (inside first)
-    expect(() =>
+    it('should reject overlapping bookings (new contains existing)', () => {
+      // First booking: 11:00 - 12:00
       service.createBooking('room-a', {
         startTime: '2099-01-21T11:00:00Z',
         endTime: '2099-01-21T12:00:00Z',
       })
-    ).toThrow('overlaps')
-  })
 
-  it('should allow same time slot in different rooms', () => {
-    const booking1 = service.createBooking('room-a', {
-      startTime: '2099-01-21T10:00:00Z',
-      endTime: '2099-01-21T11:00:00Z',
+      // Second booking: 10:00 - 13:00 (contains first)
+      expect(() =>
+        service.createBooking('room-a', {
+          startTime: '2099-01-21T10:00:00Z',
+          endTime: '2099-01-21T13:00:00Z',
+        })
+      ).toThrow('overlaps')
     })
 
-    const booking2 = service.createBooking('room-b', {
-      startTime: '2099-01-21T10:00:00Z',
-      endTime: '2099-01-21T11:00:00Z',
+    it('should reject overlapping bookings (new inside existing)', () => {
+      // First booking: 10:00 - 14:00
+      service.createBooking('room-a', {
+        startTime: '2099-01-21T10:00:00Z',
+        endTime: '2099-01-21T14:00:00Z',
+      })
+
+      // Second booking: 11:00 - 12:00 (inside first)
+      expect(() =>
+        service.createBooking('room-a', {
+          startTime: '2099-01-21T11:00:00Z',
+          endTime: '2099-01-21T12:00:00Z',
+        })
+      ).toThrow('overlaps')
     })
 
-    expect(booking1.roomId).toBe('room-a')
-    expect(booking2.roomId).toBe('room-b')
+    it('should allow same time slot in different rooms', () => {
+      const booking1 = service.createBooking('room-a', {
+        startTime: '2099-01-21T10:00:00Z',
+        endTime: '2099-01-21T11:00:00Z',
+      })
+
+      const booking2 = service.createBooking('room-b', {
+        startTime: '2099-01-21T10:00:00Z',
+        endTime: '2099-01-21T11:00:00Z',
+      })
+
+      expect(booking1.roomId).toBe('room-a')
+      expect(booking2.roomId).toBe('room-b')
+    })
   })
 
-  it('should throw 404 when cancelling non-existent booking', () => {
-    expect(() => service.cancelBooking('non-existent')).toThrow(AppError)
-    expect(() => service.cancelBooking('non-existent')).toThrow('not found')
+  describe('Booking Cancellation', () => {
+    it('should throw 404 when cancelling non-existent booking', () => {
+      expect(() => service.cancelBooking('non-existent')).toThrow(AppError)
+      expect(() => service.cancelBooking('non-existent')).toThrow('not found')
+    })
   })
 })

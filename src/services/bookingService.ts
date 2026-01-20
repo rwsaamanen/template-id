@@ -13,14 +13,16 @@ import {
   AppError,
   ErrorCodes,
 } from '../types/index.js'
+import { Clock, realClock } from '../utils/clock.js'
 import { decode } from '../utils/validation.js'
 
 /**
  * Factory function for creating booking service instances
- * Allows dependency injection of the repository for testing and flexibility
+ * Allows dependency injection of the repository and clock for testing
  */
 export function createBookingService(
-  repository: BookingRepository
+  repository: BookingRepository,
+  clock: Clock = realClock
 ): BookingService {
   /**
    * Check if a new booking would overlap with existing bookings for the same room
@@ -65,6 +67,15 @@ export function createBookingService(
       const startTime = new Date(validated.startTime)
       const endTime = new Date(validated.endTime)
 
+      // Check if booking is in the past (using injected clock)
+      if (startTime <= clock.now()) {
+        throw new AppError(
+          400,
+          ErrorCodes.VALIDATION_ERROR,
+          'Cannot create bookings in the past'
+        )
+      }
+
       // Check for overlapping bookings
       checkForOverlap(roomId, startTime, endTime)
 
@@ -74,7 +85,7 @@ export function createBookingService(
         roomId,
         startTime: startTime.toISOString(),
         endTime: endTime.toISOString(),
-        createdAt: new Date().toISOString(),
+        createdAt: clock.now().toISOString(),
       }
 
       return repository.create(booking)
@@ -117,5 +128,5 @@ export function createBookingService(
   }
 }
 
-// Backward-compatible singleton export using default repository
-export const bookingService = createBookingService(bookingStore)
+// Backward-compatible singleton export using default repository and clock
+export const bookingService = createBookingService(bookingStore, realClock)
