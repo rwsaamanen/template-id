@@ -46,7 +46,7 @@ Pohjustuksena olen yllättynyt miten valmista koodia AI kirjoitti. Ihan hyvää 
    Tuotantoympäristössä päällekkäisyyksien estot kannattaisi varmistaa pysyvän tallennuksen tasolla (constraint/transaktio), jotta rinnakkaiset pyynnöt eivät voi rikkoa invariansseja. Tässä in-memory toteutuksessa samaa ei käsittääkseni saa täysin samalla tavalla, mutta voisin esim:  
    - lisätä kevyen lukituksen (mutex) `createBooking`-polulle, **tai**  
    - dokumentoida rajoitteen selkeästi (single instance + ei rinnakkaiskirjoitussuojaa).  
-   **Tämä erottaa, koska se näyttää ymmärryksen “check-then-insert” -riskistä.**
+   **Dokumentoin tuon rajoitteen.**
 
 9. **NOT_FOUND ErrorCodes:iin**  
    Auditissa tuli esiin pieni epäjohdonmukaisuus: errorHandler käyttää `NOT_FOUND`-arvoa, mutta ErrorCodes-objektista se puuttuu. Mielestäni error koodien pitää olla tasaisia koko koodissa.  
