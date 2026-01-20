@@ -435,3 +435,248 @@ Business Rules Enforced
 
 All 18 unit tests pass, covering validation, storage, and overlap detection logic.
 ```
+## 3. 2 Vaiheen aloitus
+
+Aluksi luon promptin ChatGPT  5.2 englanniksi jossa haluan Cursorin tekevän laajan audit checkin.
+
+### Oma prompti ChatGPT 5.2 Thinking
+
+```
+Tehtävä: 
+
+Luo alla olevasta prompti englanniksi: 
+
+Tutki tarkasti template-id hakemiston koodit ja tiedostot ja kerro löydätkö mitään puutteita tai mahdollsiia parannus ehdotuksia. Tämän jälkeen luo kattava audit, missä syvennytään koodin arkkitehtuuriin ja design patterneihin.
+```
+
+### ChatGPT 5.2 Thinking vastaus
+
+```
+Here’s an English prompt you can paste into your AI tool:
+
+Prompt (English)
+
+Carefully review the entire codebase and all files inside the dev/template-id directory.
+
+Part 1: Find gaps and improvement opportunities
+
+Go through the project thoroughly (source code, configs, scripts, docs, tests—everything) and identify:
+
+Bugs or logical errors
+
+Missing validations or edge cases
+
+Error handling issues
+
+Inconsistent API behavior or unclear HTTP status codes
+
+Security concerns (even for an in-memory API)
+
+Maintainability issues (coupling, naming, structure, duplication)
+
+TypeScript issues (types too loose, any, unsafe parsing, etc.)
+
+Tooling gaps (linting, formatting, testing, CI readiness)
+
+Documentation gaps (README, assumptions, examples)
+
+For each finding:
+
+Explain what the issue is
+
+Explain why it matters
+
+Propose a concrete fix (preferably with file-level pointers like “in src/services/...”, or example snippets if helpful)
+
+Part 2: Produce a comprehensive audit focused on architecture + design patterns
+
+Write a structured audit that analyzes the system design, including:
+
+High-level architecture (layers/modules and their responsibilities)
+
+Separation of concerns: routes vs services vs storage vs validation
+
+Dependency direction and whether it follows clean architecture principles
+
+How state is handled in-memory and how easily it could be swapped for a real DB later
+
+Error model strategy (custom errors, middleware, mapping to HTTP)
+
+Validation strategy (where it lives, how consistent it is)
+
+Time handling strategy (timezone/ISO-8601 parsing, clock injection possibility)
+
+Id generation strategy and correctness
+
+Testing strategy: what is tested vs what should be tested
+
+Then explicitly discuss design patterns (used or recommended), for example:
+
+Service layer pattern
+
+Repository pattern (even in-memory)
+
+Dependency injection / inversion of control (whether it’s needed here)
+
+Factory or Adapter patterns for storage/clock/logging
+
+Middleware patterns in Express
+
+DTOs / mapping layers
+
+Domain model boundaries (what is “domain logic” here)
+
+Output format requirements
+
+Deliver the result in two sections:
+
+Findings & Improvements (actionable list)
+
+Prioritize by severity: Critical / High / Medium / Low
+
+Each item includes: problem → impact → suggested fix
+
+Architecture & Design Patterns Audit (deep dive)
+
+Clear headings
+
+Strengths, weaknesses, and recommended refactors
+
+If you recommend refactors, describe them as small, reviewable steps
+
+Assume no additional context beyond what exists in dev/template-id. If you need to make assumptions, state them explicitly.
+
+Begin the review now.
+
+If you want, I can also write a third prompt that asks the AI to convert the audit into a sequence of Finnish commit messages + step-by-step refactor plan (so you can implement improvements incrementally).
+```
+
+### Prompti Cursorille Opus 4.5 Thinking Plan Mode ( Kopioitu tuo ChatGPT 5.2 prompti käytännössä )
+
+```
+Prompt (English)
+
+Carefully review the entire codebase and all files inside the dev/template-id directory.
+
+Part 1: Find gaps and improvement opportunities
+
+Go through the project thoroughly (source code, configs, scripts, docs, tests—everything) and identify:
+
+Bugs or logical errors
+
+Missing validations or edge cases
+
+Error handling issues
+
+Inconsistent API behavior or unclear HTTP status codes
+
+Security concerns (even for an in-memory API)
+
+Maintainability issues (coupling, naming, structure, duplication)
+
+TypeScript issues (types too loose, any, unsafe parsing, etc.)
+
+Tooling gaps (linting, formatting, testing, CI readiness)
+
+Documentation gaps (README, assumptions, examples)
+
+For each finding:
+
+Explain what the issue is
+
+Explain why it matters
+
+Propose a concrete fix (preferably with file-level pointers like “in src/services/...”, or example snippets if helpful)
+
+Part 2: Produce a comprehensive audit focused on architecture + design patterns
+
+Write a structured audit that analyzes the system design, including:
+
+High-level architecture (layers/modules and their responsibilities)
+
+Separation of concerns: routes vs services vs storage vs validation
+
+Dependency direction and whether it follows clean architecture principles
+
+How state is handled in-memory and how easily it could be swapped for a real DB later
+
+Error model strategy (custom errors, middleware, mapping to HTTP)
+
+Validation strategy (where it lives, how consistent it is)
+
+Time handling strategy (timezone/ISO-8601 parsing, clock injection possibility)
+
+Id generation strategy and correctness
+
+Testing strategy: what is tested vs what should be tested
+
+Then explicitly discuss design patterns (used or recommended), for example:
+
+Service layer pattern
+
+Repository pattern (even in-memory)
+
+Dependency injection / inversion of control (whether it’s needed here)
+
+Factory or Adapter patterns for storage/clock/logging
+
+Middleware patterns in Express
+
+DTOs / mapping layers
+
+Domain model boundaries (what is “domain logic” here)
+
+Output format requirements
+
+Deliver the result in two sections:
+
+Findings & Improvements (actionable list)
+
+Prioritize by severity: Critical / High / Medium / Low
+
+Each item includes: problem → impact → suggested fix
+
+Architecture & Design Patterns Audit (deep dive)
+
+Clear headings
+
+Strengths, weaknesses, and recommended refactors
+
+If you recommend refactors, describe them as small, reviewable steps
+
+Assume no additional context beyond what exists in dev/template-id. If you need to make assumptions, state them explicitly.
+
+Begin the review now.
+```
+
+### Cursor & Opus 4.5 Vastaus.
+
+Tässä nyt oli pientä säätöä. Aluksi Cursor loi Plan moden ja alkoi samantien korjaamaan asioita. Jouduin keskeyttämään ja kirjoitin pikaisesti promptin, missä haluan sen luovan [AUDIT.md](./AUDIT.md) tiedoston sen sijaan, että lähtee itse suoraan koodaamaan.
+
+```
+Loin docs/AUDIT.md tiedoston englanniksi. Se sisältää:
+
+Part 1: Findings & Improvement Opportunities
+0 Critical issues
+4 High priority (H1-H4)
+6 Medium priority (M1-M6)
+6 Low priority (L1-L6)
+
+Part 2: Architecture & Design Patterns Audit
+High-level architecture diagram
+Separation of concerns analysis
+Dependency direction
+State management
+Error model strategy
+Validation strategy
+Time handling strategy
+ID generation strategy
+Testing strategy
+Design patterns analysis
+Recommended refactoring steps
+Summary with strengths and weaknesses
+
+Tiedosto on nyt valmiina: template-id/docs/AUDIT.md
+```
+
+
