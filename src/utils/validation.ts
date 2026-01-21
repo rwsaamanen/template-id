@@ -1,3 +1,4 @@
+import { StatusCodes } from 'http-status-codes'
 import { z } from 'zod'
 
 import { AppError, ErrorCodes } from '../types/index.js'
@@ -33,7 +34,7 @@ export function decode<T>(
     }))
 
     throw new AppError(
-      400,
+      StatusCodes.BAD_REQUEST,
       ErrorCodes.VALIDATION_ERROR,
       `Validation failed for ${schemaName}`,
       errors

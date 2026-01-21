@@ -180,9 +180,12 @@ template-id/
 │   ├── types/
 │   │   └── index.ts        # TypeScript interfaces and error types
 │   ├── storage/
-│   │   └── bookingStore.ts # In-memory data store
-│   ├── validators/
-│   │   └── bookingValidator.ts # Input validation
+│   │   └── bookingStore.ts # In-memory repository
+│   ├── schemas/
+│   │   └── bookingSchemas.ts   # Zod validation schemas
+│   ├── utils/
+│   │   ├── clock.ts        # Clock abstraction for testing
+│   │   └── validation.ts   # Zod decode helper
 │   ├── services/
 │   │   └── bookingService.ts   # Business logic
 │   ├── routes/
@@ -190,7 +193,11 @@ template-id/
 │   └── middleware/
 │       └── errorHandler.ts     # Centralized error handling
 ├── tests/
-│   └── booking.test.ts     # Unit tests
+│   ├── booking.test.ts     # Unit tests
+│   └── api.test.ts         # Integration tests
+├── docs/
+│   ├── TIME_MODEL.md       # Overlap model documentation
+│   └── CONCURRENCY.md      # Concurrency limitations
 ├── package.json
 ├── tsconfig.json
 ├── vitest.config.ts
@@ -215,7 +222,7 @@ Since there was no customer to clarify requirements, the following assumptions w
 
 7. **No pagination** - The GET endpoint returns all bookings for a room. For rooms with many bookings, pagination would be needed.
 
-8. **No minimum booking duration** - A booking could technically be 1 millisecond. In production, a minimum duration might be enforced.
+8. **Booking duration limits** - Bookings must be between 15 minutes and 8 hours.
 
 9. **Adjacent bookings allowed** - A booking can start at the exact moment another ends (e.g., 10:00-11:00 and 11:00-12:00 do not overlap).
 

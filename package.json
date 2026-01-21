@@ -2,7 +2,7 @@
   "name": "meeting-room-booking-api",
   "version": "1.0.0",
   "description": "REST API for meeting room bookings",
-  "main": "src/server.ts",
+  "main": "dist/server.js",
   "scripts": {
     "dev": "tsx watch src/server.ts",
     "start": "tsx src/server.ts",
