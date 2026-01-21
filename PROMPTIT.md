@@ -384,7 +384,7 @@ Start now.
 
 ### Cursor & Opus 4.5 Vastaus.
 
-Plan moden luoma suunnitelma löytyy tiedostosta: [01_meeting_room_booking_api_f55333cf.plan.md](../cursor_plans/01_meeting_room_booking_api_f55333cf.plan.md)
+Plan moden luoma suunnitelma löytyy tiedostosta: [01_meeting_room_booking_api_f55333cf.plan.md](cursor_plans/01_meeting_room_booking_api_f55333cf.plan.md)
 
 ```
 All endpoints work correctly. Let me check for any linter errors in the source files.
@@ -720,7 +720,7 @@ Update this prompt to @template-id/docs/PROMPTIT.md  and add you response there 
 
 ### Cursor & Opus 4.5 Vastaus
 
-Plan moden luoma suunnitelma löytyy tiedostosta: [02_implement_zod_validation_8dd34006.plan.md](../cursor_plans/02_implement_zod_validation_8dd34006.plan.md)
+Plan moden luoma suunnitelma löytyy tiedostosta: [02_implement_zod_validation_8dd34006.plan.md](cursor_plans/02_implement_zod_validation_8dd34006.plan.md)
 
 ```
 Implementation completed successfully:
@@ -806,7 +806,7 @@ Update this prompt to @template-id/docs/PROMPTIT.md  and add you response there 
 
 ### Cursor & Opus 4.5 Vastaus
 
-Plan moden luoma suunnitelma löytyy tiedostosta: [03_integration_tests_with_supertest_03fdf398.plan.md](../cursor_plans/03_integration_tests_with_supertest_03fdf398.plan.md)
+Plan moden luoma suunnitelma löytyy tiedostosta: [03_integration_tests_with_supertest_03fdf398.plan.md](cursor_plans/03_integration_tests_with_supertest_03fdf398.plan.md)
 
 ```
 Implementation completed successfully:
@@ -881,7 +881,7 @@ Update this prompt to @template-id/docs/PROMPTIT.md and add your response there 
 
 ### Cursor & Opus 4.5 Vastaus
 
-Plan moden luoma suunnitelma löytyy tiedostosta: [04_repository_pattern_refactor_c8b40db4.plan.md](../cursor_plans/04_repository_pattern_refactor_c8b40db4.plan.md)
+Plan moden luoma suunnitelma löytyy tiedostosta: [04_repository_pattern_refactor_c8b40db4.plan.md](cursor_plans/04_repository_pattern_refactor_c8b40db4.plan.md)
 
 ```
 Implementation completed successfully:
@@ -963,7 +963,7 @@ Update this prompt to @template-id/docs/PROMPTIT.md and add your response there 
 
 ### Cursor & Opus 4.5 Vastaus
 
-Plan moden luoma suunnitelma löytyy tiedostosta: [05_clock_abstraction_for_tests_0960c2cc.plan.md](../cursor_plans/05_clock_abstraction_for_tests_0960c2cc.plan.md)
+Plan moden luoma suunnitelma löytyy tiedostosta: [05_clock_abstraction_for_tests_0960c2cc.plan.md](cursor_plans/05_clock_abstraction_for_tests_0960c2cc.plan.md)
 
 ```
 Implementation completed successfully:
@@ -1032,7 +1032,7 @@ Update this prompt to @template-id/docs/PROMPTIT.md and add your response there 
 
 ### Cursor & Opus 4.5 Vastaus
 
-Plan moden luoma suunnitelma löytyy tiedostosta: [06_document_overlap_model_and_edge_cases_a29e288f.plan.md](../cursor_plans/06_document_overlap_model_and_edge_cases_a29e288f.plan.md)
+Plan moden luoma suunnitelma löytyy tiedostosta: [06_document_overlap_model_and_edge_cases_a29e288f.plan.md](cursor_plans/06_document_overlap_model_and_edge_cases_a29e288f.plan.md)
 
 ```
 Implementation completed successfully:
@@ -1093,7 +1093,7 @@ Update this prompt to @template-id/docs/PROMPTIT.md and add your response there 
 
 ### Cursor & Opus 4.5 Vastaus
 
-Plan moden luoma suunnitelma löytyy tiedostosta: [07_add_duration_validation_2ad4d634.plan.md](../cursor_plans/07_add_duration_validation_2ad4d634.plan.md)
+Plan moden luoma suunnitelma löytyy tiedostosta: [07_add_duration_validation_2ad4d634.plan.md](cursor_plans/07_add_duration_validation_2ad4d634.plan.md)
 
 ```
 Implementation completed successfully:
@@ -1151,7 +1151,7 @@ Update this prompt to @template-id/docs/PROMPTIT.md and add your response there 
 
 ### Cursor & Opus 4.5 Vastaus
 
-Plan moden luoma suunnitelma löytyy tiedostosta: [08_document_concurrency_limitations_ffb2209c.plan.md](../cursor_plans/08_document_concurrency_limitations_ffb2209c.plan.md)
+Plan moden luoma suunnitelma löytyy tiedostosta: [08_document_concurrency_limitations_ffb2209c.plan.md](cursor_plans/08_document_concurrency_limitations_ffb2209c.plan.md)
 
 ```
 Documentation created successfully:
@@ -1201,7 +1201,7 @@ Update this prompt to @template-id/docs/PROMPTIT.md and add your response there 
 
 ### Cursor & Opus 4.5 Vastaus
 
-Plan moden luoma suunnitelma löytyy tiedostosta: [09_phase_2_code_audit_89d230f2.plan.md](../cursor_plans/09_phase_2_code_audit_89d230f2.plan.md)
+Plan moden luoma suunnitelma löytyy tiedostosta: [09_phase_2_code_audit_89d230f2.plan.md](cursor_plans/09_phase_2_code_audit_89d230f2.plan.md)
 
 ```
 Created docs/AUDIT-PHASE2.md with comprehensive findings:

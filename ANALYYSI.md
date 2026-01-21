@@ -1,4 +1,4 @@
-# Analyysit
+# Analyysi
 
 Aloitan tämän kirjoittamisen tässä vaiheessa ja lopullinen yhteenveto löytynee lopusta:
 
@@ -36,13 +36,13 @@ Pohjustuksena olen yllättynyt miten valmista koodia AI kirjoitti. Ihan hyvää 
 
    Lisäksi SQL päällekkäisyydet voitaisiin estää tietokantatason constraintilla, mutta nyt kun in-memory toteutus, niin pidän tärkeimpänä selkeää dokumentointia ja yksiselitteistä aikakäytäntöä, eli tallennus ja vertailu tehdään UTC:ssa, ja ajat voidaan tarvittaessa muuntaa paikalliseen aikavyöhykkeeseen käyttöliittymässä.
 
-7. **(Lisäys) Maksimikesto varaukselle (kevyt “business rule”)**  
+7. **(Lisäys) Maksimikesto varaukselle (kevyt "business rule")**  
    Tällä hetkellä varaus voi teoriassa olla 1ms tai 100 vuotta. Tuotannossa tällaisille on yleensä min ja max rajat. Tähän tehtävään lisäisin kevyen rajoituksen, jotta data pysyy järkevänä ja edge keissit vähenee.  
    Time slot -malli ja toistuvat varaukset olisivat mahdollisia jatkokehitysaskelia, mutta ne laajentaa domainia, niin skippaan ne tässä.  
    **Tämä on pieni muutos, mutta parantaa logiikan realismia.**
 
 
-8. **(Lisäys) Atomisuus / kilpailutilanteet (in-memory vastaus “DB constraintille”)**  
+8. **(Lisäys) Atomisuus / kilpailutilanteet (in-memory vastaus "DB constraintille")**  
    Tuotantoympäristössä päällekkäisyyksien estot kannattaisi varmistaa pysyvän tallennuksen tasolla (constraint/transaktio), jotta rinnakkaiset pyynnöt eivät voi rikkoa invariansseja. Tässä in-memory toteutuksessa samaa ei käsittääkseni saa täysin samalla tavalla, mutta voisin esim:  
    - lisätä kevyen lukituksen (mutex) `createBooking`-polulle, **tai**  
    - dokumentoida rajoitteen selkeästi (single instance + ei rinnakkaiskirjoitussuojaa).  
@@ -65,7 +65,7 @@ Pohjustuksena olen yllättynyt miten valmista koodia AI kirjoitti. Ihan hyvää 
     **Teen tästä pienen commitin, nopea fixi.**
 
 13. **AppError factory-metodit**  
-    AI:n tuottamassa koodissa virheitä heitetään usein samalla kaavalla toistuvasti (`new AppError(status, code, message)`). Factory-metodit (esim. `AppError.notFound(...)`, `AppError.validation(...)`) tekisi virheiden luonnista selkeämpää ja vähentää “boilerplatea”. Ainakin itse tottunut tähän.
+    AI:n tuottamassa koodissa virheitä heitetään usein samalla kaavalla toistuvasti (`new AppError(status, code, message)`). Factory-metodit (esim. `AppError.notFound(...)`, `AppError.validation(...)`) tekisi virheiden luonnista selkeämpää ja vähentää "boilerplatea". Ainakin itse tottunut tähän.
     **Tämä menee luettavuus/refaktorointi-kastiin, joten tämä jää todennäköisesti vain huomioksi.**
 
 14. **Request Context (Trace ID) & Pino Logger**  

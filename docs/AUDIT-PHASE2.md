@@ -1,6 +1,6 @@
 # Phase 2 Code Audit
 
-This audit reviews the current state of the codebase after implementing improvements from Phase 1 (ANALYYSIT.md).
+This audit reviews the current state of the codebase after implementing improvements from Phase 1 (ANALYYSI.md).
 
 ---
 
@@ -56,7 +56,7 @@ The codebase has significantly improved since Phase 1. All 12 planned improvemen
 
 ## Out-of-Scope Items
 
-These were documented in ANALYYSIT.md as not needed for this project:
+These were documented in ANALYYSI.md as not needed for this project:
 
 - **Helmet security headers** - Would add in production
 - **CORS configuration** - Depends on frontend requirements

@@ -14,6 +14,7 @@ export function errorHandler(
   _next: NextFunction
 ): void {
   // Log error for debugging (in production, use a proper logger)
+  // eslint-disable-next-line no-console
   console.error(`[ERROR] ${err.message}`, {
     path: req.path,
     method: req.method,
