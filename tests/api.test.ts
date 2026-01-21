@@ -1,5 +1,5 @@
-import { describe, it, expect, beforeEach } from 'vitest'
 import request from 'supertest'
+import { describe, it, expect, beforeEach } from 'vitest'
 
 import { createApp } from '../src/app.js'
 import { bookingStore } from '../src/storage/bookingStore.js'
