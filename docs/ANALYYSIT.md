@@ -77,3 +77,47 @@ Pohjustuksena olen yllättynyt miten valmista koodia AI kirjoitti. Ihan hyvää 
     **Ei tule tähän, mutta huomio.**
 
 ## Yhteenveto
+
+Käytin tehtävässä tosiaan Cursoria ja livebenchin perusteella olevaa parasta mahdollista mallia, niin lopputulos oli yllättävän hyvä. Uskon, ja tiedän kokemuksista, että huonompi malli ei tälläiseen lopputulokseen olisi pääsyt. Suurin osa kommenteista on tekoälyn luomaa ja olen tarkoituksella ne jättänyt, osa niistä on myös minun.
+
+### 1. Mitä tekoäly teki hyvin?
+
+Tekoäly rakensi koko perustan ja perustoiminnallisuuden hyvin. Eli minun ei tarvinnut oikeastaan mitään ylimääräistä tehdä. Cursorin Plan mode ja Claude Opus 4.5 Thinking suoritti annetun tehtävän kerralla maaliin, eli väliprompteja en tarvinnut ollenkaan.
+
+Seuraavat kohdat oli toteutettu omasta mielestä ja auditin perusteella hyvin:
+
+- Kerrosarkkitehtuuri (Routes -> Service -> Storage) oli selkeä ja oikein jaettu
+- Overlap-logiikka oli järkevästi tehty
+- UUID-generointi uuid.v4():llä
+- AppError + errorHandler toteutus
+- Testit
+
+### 2. Mitä tekoäly teki huonosti?
+
+Luonnollisesti tekoälyn luomassa koodissa oli puutteita, mutta esim pikaiseen pocciin tai mvp, niin uskoisin sen riittävän. Eli tässä nyt tuli huomio, että mitä jos kaikki nämä asiat olisi promptannut etupeltoon. Niin olisiko lopputulos voinut olla kerralla sellainen, missä nämä olisi edes jollain tasolla tehtynä? Toki pitää huomioida, että jossain menee AI:n context raja, eli aivan loputtomasti en voi AI:lle syöttää promptia, vaan tässäkin kannattanee varmasti lähestyä pala kerrallaan.
+
+- Singleton-pattern BookingStoressa esti testieristyksen ja dependency injectionin. Tämä oli hieman haasteellista käsittää, koska en in memorya ollut kunnolla ikinä käyttänyt, mutta käsittääkseni datahan on itse sovelluksen muuttujassa kun taas jos olis psql, niin se olisi ulkoisesti esim testidatana. Esim postgresissa tiedot tallennettaisiin luonnollisesti kantaan ja jokainen testi nollaisi tietokannan (esim. resetTestDb()), jolloin muistia ei jäisi eri testien välillä.
+- ESLint/Prettier puuttui
+- Body size limitit puuttui
+- new Date() suoraan koodissa teki aikatesteistä epädeterministisiä
+- Ei integraatiotestejä, vain unit-testit
+- Loose typing validaattorissa (as Record<string, unknown>)
+- Ei graceful shutdownia
+- Ei varauksen keston validointia
+
+### 3. Mitkä olivat tärkeimmät parannukset, jotka teit tekoälyn tuottamaan koodiin ja miksi?
+
+Toteutin alla olevat 12 parannusta, osa korjattu itse ja osa AI:n avulla. Ymmärsin, että sitä sai käyttää iteroinnissa ja promptit on tosiaan tallennettu.
+
+1. **ESLint + Prettier** - Preferenssikysymys, mutta yhtenäisen formaatin kannalta pidän tärkeänä. Etenkin jos multivendor setup tai useampi kehittäjä.
+2. **Zod-validointi** - Tämä nyt itselle tutuin.
+3. **Integraatiotestit supertest:llä** - HTTP-kerrosta ei testattu ollenkaan, koen itse tärkeäksi.
+4. **Repository + DI refaktorointi** - Tämä nyt saattoi olla tarpeeton tässä tehtävässä, mutta testailin, miten AI tämän teki.
+5. **Clock-abstraktio** - Jos koodi kutsuisi suoraan new Date(), niin testissä ei voisi kontrolloida mikä aika  oikeasti on. Esim. "varaus ei saa olla menneisyydessä", niin testiä ei voi kirjoittaa luotettavasti. Clock-abstraktiolla testiin voi injektoida kellon joka palauttaa aina saman ajan.
+6. **Overlap-mallin dokumentointi + edge case testit** - Varausjärjestelmissä on aina kysymys: voiko varaus A loppua klo 11:00 ja varaus B alkaa klo 11:00? Halusin dokumentoida tämän, sillä jos tekisin tikettiä, niin itse kehittäjänä nämä olisi kysymyksiä joihin saattaisin törmätä jatkokehityksissä tai featsoissa, mitkä saattaa liittyä tähän.
+7. **Varauksen keston validointi** - Tämä nyt varmasti olisi speksattu tiketillä, mutta tämä pyöri mielessä niin lisäsin.
+8. **Concurrency-dokumentaatio** - Node.js:ssä in-memory operaatio on atominen. Postgresissa näin ei ole rinnakkaisten yhteyksien takia, niin halusin tämän nostaa esille.
+9. **NOT_FOUND ErrorCodes:iin** - Tämä puuttui objektista kokonaan.
+10. **Body size limit** - En tiedä tarkkaa käytäntöä, mutta sen tiedän, että nämä on yleensä limitoitu johonkin.
+11. **Graceful shutdown** - Tuotannossa käynnissä olevat pyynnöt voi katketa deployn aikana. Devissä nyt ohi.
+12. **http-status-codes kirjasto** - Aivan preferenssikysymys, mutta minulle tämä on kiva lisä, toki riippuen käytänteistä halutaanko vai ei.
